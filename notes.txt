@@ -1,0 +1,30 @@
+http://andrewhfarmer.com/react-ajax-best-practices/ See Number 3
+
+The flow:
+
+AsyncApp.js render()...onClick={this.handleRefreshClick}
+
+--> AsyncApp.js handleRefreshClick(e) { 
+	const { dispatch, selectedReddit } = this.props; //TODO, what is this doing?? ....parameters???
+	dispatch(invalidateReddit(selectedReddit));
+	dispatch(fetchPostsIfNeeded(selectedReddit)); 
+}
+
+ACTIONS
+
+export function invalidateReddit(reddit) {
+  return {
+    type: INVALIDATE_REDDIT,
+    reddit
+  };
+}
+
+export function fetchPostsIfNeeded(reddit) { //TODO why is this of different form than invalidateReddit, requestPosts, receivePosts
+  return (dispatch, getState) => {
+    if (shouldFetchPosts(getState(), reddit)) {
+      return dispatch(fetchPosts(reddit));
+    }
+  };
+}
+
+
