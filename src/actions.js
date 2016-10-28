@@ -2,50 +2,50 @@ import fetch from 'isomorphic-fetch';
 
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 export const RECEIVE_POSTS = 'RECEIVE_POSTS';
-export const SELECT_REDDIT = 'SELECT_REDDIT';
-export const INVALIDATE_REDDIT = 'INVALIDATE_REDDIT';
+export const SELECT_SUBREDDIT = 'SELECT_SUBREDDIT';
+export const INVALIDATE_SUBREDDIT = 'INVALIDATE_SUBREDDIT';
 
-export function selectReddit(reddit) {
+export function selectSubreddit(subreddit) {
   return {
-    type: SELECT_REDDIT,
-    reddit
+    type: SELECT_SUBREDDIT,
+    subreddit
   };
 }
 
-export function invalidateReddit(reddit) {
+export function invalidateSubreddit(subreddit) {
   return {
-    type: INVALIDATE_REDDIT,
-    reddit
+    type: INVALIDATE_SUBREDDIT,
+    subreddit
   };
 }
 
-function requestPosts(reddit) {
+function requestPosts(subreddit) {
   return {
     type: REQUEST_POSTS,
-    reddit
+    subreddit
   };
 }
 
-function receivePosts(reddit, json) {
+function receivePosts(subreddit, json) {
   return {
     type: RECEIVE_POSTS,
-    reddit,
+    subreddit,
     posts: json.data.children.map(child => child.data),
     receivedAt: Date.now()
   };
 }
 
-function fetchPosts(reddit) {
+function fetchPosts(subreddit) {
   return dispatch => {
-    dispatch(requestPosts(reddit));
-    return fetch(`http://www.reddit.com/r/${reddit}.json`)
-      .then(req => req.json())
-      .then(json => dispatch(receivePosts(reddit, json)));
+    dispatch(requestPosts(subreddit))
+    return fetch(`http://www.reddit.com/r/${subreddit}.json`)
+      .then(response => response.json())
+      .then(json => dispatch(receivePosts(subreddit, json)))
   }
 }
 
-function shouldFetchPosts(state, reddit) {
-  const posts = state.postsByReddit[reddit];
+function shouldFetchPosts(state, subreddit) {
+  const posts = state.postsBySubreddit[subreddit]
   if (!posts) {
     return true;
   } else if (posts.isFetching) {
@@ -55,10 +55,10 @@ function shouldFetchPosts(state, reddit) {
   }
 }
 
-export function fetchPostsIfNeeded(reddit) {
+export function fetchPostsIfNeeded(subreddit) {
   return (dispatch, getState) => {
-    if (shouldFetchPosts(getState(), reddit)) {
-      return dispatch(fetchPosts(reddit));
+    if (shouldFetchPosts(getState(), subreddit)) {
+      return dispatch(fetchPosts(subreddit))
     }
   };
 }
